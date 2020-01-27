@@ -56,10 +56,7 @@ export class CallStack{
 		} else {
 			let toCopy = arguments[0] as CallStack;
 
-			this._threads = [];
-			for (let otherThread of toCopy._threads) {
-				this._threads.push(otherThread.Copy());
-			}
+			this._threads = toCopy._threads.map(otherThread => otherThread.Copy());
 			this._startOfRoot = toCopy._startOfRoot;
 		}
 	}
@@ -91,11 +88,7 @@ export class CallStack{
 	public GetJsonToken(){
 		let jObject: any = {};
 
-		let jThreads: any[] = [];
-
-		for (let thread of this._threads) {
-			jThreads.push(thread.jsonToken);
-		}
+		let jThreads: any[] = this._threads.map(thread => thread.jsonToken);
 
 		jObject['threads'] = jThreads;
 		jObject['threadCounter'] = this._threadCounter;
@@ -150,7 +143,7 @@ export class CallStack{
 		if (!this.canPop)
 			return false;
 
-		if (type == null)
+		if (type === null)
 			return true;
 
 		return this.currentElement.type == type;
@@ -167,22 +160,18 @@ export class CallStack{
 
 	public GetTemporaryVariableWithName(name: string | null, contextIndex: number = -1){
 
-		if (contextIndex == -1)
+		if (contextIndex === -1)
 			contextIndex = this.currentElementIndex + 1;
 
 		let contextElement = this.callStack[contextIndex - 1];
 
 		let varValue = tryGetValueFromMap(contextElement.temporaryVariables, name, null);
-		if (varValue.exists) {
-			return varValue.result;
-		} else {
-			return null;
-		}
+		return (varValue.exists) ? varValue.result : null;
 	}
 
 	public SetTemporaryVariable(name: string, value: any, declareNew: boolean, contextIndex: number = -1){
 
-		if (contextIndex == -1)
+		if (contextIndex === -1)
 			contextIndex = this.currentElementIndex + 1;
 
 		let contextElement = this.callStack[contextIndex - 1];
@@ -199,22 +188,15 @@ export class CallStack{
 	}
 
 	public ContextForVariableNamed(name: string){
-
 		if (this.currentElement.temporaryVariables.get(name)) {
 			return this.currentElementIndex + 1;
-		}
-
-		else {
+		} else {
 			return 0;
 		}
 	}
 
 	public ThreadWithIndex(index: number){
-		let filtered = this._threads.filter((t) => {
-			if (t.threadIndex == index) return t;
-		});
-
-		return filtered[0];
+		return this._threads.find(t => (t.threadIndex === index));
 	}
 
 	get callStack(){
@@ -356,8 +338,7 @@ export namespace CallStack {
 		get jsonToken(){
 			let threadJObj: any = {};
 
-			let jThreadCallstack: any[] = [];
-			for (let el of this.callstack) {
+			let jThreadCallstack: any[] = this.callstack.map(el => {
 				let jObj: any = {};
 				if (!el.currentPointer.isNull) {
 					if (el.currentPointer.container === null) { return throwNullException('el.currentPointer.container'); }
@@ -367,8 +348,8 @@ export namespace CallStack {
 				jObj['exp'] = el.inExpressionEvaluation;
 				jObj['type'] = el.type;
 				jObj['temp'] = JsonSerialisation.DictionaryRuntimeObjsToJObject(el.temporaryVariables);
-				jThreadCallstack.push(jObj);
-			}
+				return jObj;
+			});
 
 			threadJObj['callstack'] = jThreadCallstack;
 			threadJObj['threadIndex'] = this.threadIndex;
