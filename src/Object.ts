@@ -50,9 +50,9 @@ export class InkObject{
 	}
 
 	get path(){
-		if (this._path == null) {
+		if (this._path === null) {
 
-			if (this.parent == null) {
+			if (this.parent === null) {
 				this._path = new Path();
 			} else {
 				let comps: Path.Component[] = [];
@@ -63,7 +63,7 @@ export class InkObject{
 				while (container !== null) {
 
 					let namedChild = asINamedContentOrNull(child);
-					if (namedChild != null && namedChild.hasValidName) {
+					if (namedChild !== null && namedChild.hasValidName) {
 						comps.unshift(new Path.Component(namedChild.name));
 					} else {
 						comps.unshift(new Path.Component(container.content.indexOf(child)));
@@ -122,14 +122,14 @@ export class InkObject{
 		}
 
 		// No shared path components, so just use global path
-		if (lastSharedPathCompIndex == -1)
+		if (lastSharedPathCompIndex === -1)
 			return globalPath;
 
 		let numUpwardsMoves = (ownPath.componentCount-1) - lastSharedPathCompIndex;
 
 		let newPathComps: Path.Component[] = [];
 
-		for(let up = 0; up < numUpwardsMoves; ++up)
+		for (let up = 0; up < numUpwardsMoves; ++up)
 			newPathComps.push(Path.Component.ToParent());
 
 		for (let down = lastSharedPathCompIndex + 1; down < globalPath.componentCount; ++down)
@@ -146,17 +146,13 @@ export class InkObject{
 		if (otherPath.isRelative) {
 			relativePathStr = otherPath.componentsString;
 			globalPathStr = this.path.PathByAppendingPath(otherPath).componentsString;
-		}
-		else {
+		} else {
 			let relativePath = this.ConvertPathToRelative(otherPath);
 			relativePathStr = relativePath.componentsString;
 			globalPathStr = otherPath.componentsString;
 		}
 
-		if (relativePathStr.length < globalPathStr.length)
-			return relativePathStr;
-		else
-			return globalPathStr;
+		return (relativePathStr.length < globalPathStr.length) ? relativePathStr : globalPathStr;
 	}
 
 	get rootContentContainer(){
@@ -180,7 +176,7 @@ export class InkObject{
 
 		obj[prop] = value;
 
-		if( obj[prop] )
+		if (obj[prop])
 			obj[prop].parent = this;
 	}
 }
