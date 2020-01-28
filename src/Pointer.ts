@@ -3,8 +3,8 @@ import {Container} from './Container';
 import {InkObject} from './Object';
 
 export class Pointer{
-  public container: Container | null = null;
-  public index: number = -1;
+	public container: Container | null = null;
+	public index: number = -1;
 
 	constructor();
 	constructor(container: Container | null, index: number)
@@ -17,15 +17,15 @@ export class Pointer{
 
 	public Resolve(): InkObject | null{
 		if (this.index < 0) return this.container;
-		if (this.container == null) return null;
-		if (this.container.content.length == 0) return this.container;
+		if (this.container === null) return null;
+		if (this.container.content.length === 0) return this.container;
 		if (this.index >= this.container.content.length) return null;
 
 		return this.container.content[this.index];
 	}
 
 	get isNull(): boolean{
-		return this.container == null;
+		return this.container === null;
 	}
 
 	get path(): Path | null{
@@ -41,7 +41,7 @@ export class Pointer{
 		if (!this.container)
 			return 'Ink Pointer (null)';
 
-		return 'Ink Pointer -> ' + this.container.path.toString() + ' -- index ' + this.index;
+		return `Ink Pointer -> ${this.container.path.toString()} -- index ${this.index}`;
 	}
 
 	// This method does not exist in the original C# code, but is here to maintain the
