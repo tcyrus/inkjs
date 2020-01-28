@@ -8,7 +8,7 @@ import {throwNullException} from './NullException';
 
 export class Divert extends InkObject{
 	get targetPath(){
-		if (this._targetPath != null && this._targetPath.isRelative) {
+		if (this._targetPath !== null && this._targetPath.isRelative) {
 			let targetObj = this.targetPointer.Resolve();
 			if (targetObj) {
 				this._targetPath = targetObj.path;
@@ -46,22 +46,18 @@ export class Divert extends InkObject{
 	public _targetPointer: Pointer = Pointer.Null;
 
 	get targetPathString(){
-		if (this.targetPath == null)
+		if (this.targetPath === null)
 			return null;
 
 		return this.CompactPathString(this.targetPath);
 	}
 	set targetPathString(value: string | null){
-		if (value == null) {
-			this.targetPath = null;
-		} else {
-			this.targetPath = new Path(value);
-		}
+		this.targetPath = (value === null) ? null : new Path(value);
 	}
 
 	public variableDivertName: string | null = null;
 	get hasVariableTarget(){
-		return this.variableDivertName != null;
+		return this.variableDivertName !== null;
 	}
 
 	public pushesToStack: boolean = false;
@@ -99,19 +95,17 @@ export class Divert extends InkObject{
 
 	public toString(){
 		if (this.hasVariableTarget) {
-			return 'Divert(variable: ' + this.variableDivertName + ')';
-		}
-		else if (this.targetPath == null) {
+			return `Divert(variable: ${this.variableDivertName})`;
+		} else if (this.targetPath === null) {
 			return 'Divert(null)';
 		} else {
-
 			let sb = new StringBuilder();
 
 			let targetStr = this.targetPath.toString();
 			// int? targetLineNum = DebugLineNumberOfPath (targetPath);
 			let targetLineNum = null;
-			if (targetLineNum != null) {
-				targetStr = 'line ' + targetLineNum;
+			if (targetLineNum !== null) {
+				targetStr = `line ${targetLineNum}`;
 			}
 
 			sb.Append('Divert');
@@ -120,7 +114,7 @@ export class Divert extends InkObject{
 				sb.Append('?');
 
 			if (this.pushesToStack) {
-				if (this.stackPushType == PushPopType.Function) {
+				if (this.stackPushType === PushPopType.Function) {
 					sb.Append(' function');
 				} else {
 					sb.Append(' tunnel');
