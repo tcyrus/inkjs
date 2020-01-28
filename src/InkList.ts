@@ -3,7 +3,7 @@ import {StringBuilder} from './StringBuilder';
 import {ListDefinition} from './ListDefinition';
 import {Story} from './Story';
 
-export class InkListItem implements IInkListItem{ // InkListItem is a struct
+export class InkListItem implements IInkListItem { // InkListItem is a struct
 
 	public readonly originName: string | null = null;
 	public readonly itemName: string | null = null;
@@ -11,7 +11,7 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 	constructor(originName: string | null, itemName: string | null)
 	constructor(fullName: string | null)
 	constructor(){
-		if (typeof arguments[1] !== 'undefined'){
+		if (typeof arguments[1] !== 'undefined') {
 			let originName = arguments[0] as string | null;
 			let itemName = arguments[1] as string | null;
 
@@ -25,21 +25,20 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 			this.itemName = nameParts[1];
 		}
 	}
-	public static get Null(){
+	public static get Null() {
 		return new InkListItem(null, null);
 	}
-	public get isNull(){
-		return this.originName == null && this.itemName == null;
+	public get isNull() {
+		return this.originName === null && this.itemName === null;
 	}
-	get fullName(){
+	get fullName() {
 		return (this.originName ?? '?') + '.' + this.itemName;
 	}
 	public toString(): string {
 		return this.fullName;
 	}
-	public Equals(obj: InkListItem){
-		if (obj instanceof InkListItem) {
-			let otherItem = obj;
+	public Equals(otherItem: InkListItem){
+		if (otherItem instanceof InkListItem) {
 			return otherItem.itemName === this.itemName
 				&& otherItem.originName === this.originName;
 		}
@@ -55,14 +54,14 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 	/**
 	 * Returns a shallow clone of the current instance.
 	 */
-	public copy(){
+	public copy() {
 		return new InkListItem(this.originName, this.itemName);
 	}
 	/**
 	 * Returns a `SerializedInkListItem` representing the current
 	 * instance. The result is intended to be used as a key inside a Map.
 	 */
-	public serialized(): SerializedInkListItem{
+	public serialized(): SerializedInkListItem {
 		// We are simply using a JSON representation as a value-typed key.
 		return JSON.stringify({originName: this.originName, itemName: this.itemName});
 	}
@@ -83,7 +82,7 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 	 * Determines whether the given item is sufficiently `InkListItem`-like
 	 * to be used as a template when reconstructing the InkListItem.
 	 */
-	private static isLikeInkListItem(item: any){
+	private static isLikeInkListItem(item: any) {
 		if (typeof item !== 'object') return false;
 		if (!item.hasOwnProperty('originName') || !item.hasOwnProperty('itemName')) return false;
 		if (typeof item.originName !== 'string' && typeof item.originName !== null) return false;
@@ -105,11 +104,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		// Trying to be smart here, this emulates the constructor inheritance found
 		// in the original code, but only if otherList is an InkList. IIFE FTW.
 		super((() => {
-			if (arguments[0] instanceof InkList) {
-				return arguments[0];
-			} else {
-				return undefined;
-			}
+			return (arguments[0] instanceof InkList) ? arguments[0] : undefined;
 		})());
 
 		if (arguments[0] instanceof InkList) {
@@ -186,18 +181,18 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			this.Add(item, itemVal);
 		}
 	}
-	public ContainsItemNamed(itemName: string | null){
+	public ContainsItemNamed(itemName: string | null) {
 		for (let [key, value] of this) {
 			let item = InkListItem.fromSerializedKey(key);
-			if (item.itemName == itemName) return true;
+			if (item.itemName === itemName) return true;
 		}
 
 		return false;
 	}
-	public ContainsKey(key: InkListItem){
+	public ContainsKey(key: InkListItem) {
 		return this.has(key.serialized());
 	}
-	public Add(key: InkListItem, value: number){
+	public Add(key: InkListItem, value: number) {
 		let serializedKey = key.serialized();
 		if (this.has(serializedKey)) {
 			// Throw an exception to match the C# behavior.
@@ -205,30 +200,23 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		}
 		this.set(serializedKey, value);
 	}
-	public Remove(key: InkListItem){
+	public Remove(key: InkListItem) {
 		return this.delete(key.serialized());
 	}
-	get Count(){
+	get Count() {
 		return this.size;
 	}
-	get originOfMaxItem(): ListDefinition | null{
+	get originOfMaxItem(): ListDefinition | null {
 		if (this.origins === null) return null;
 
 		let maxOriginName = this.maxItem.Key.originName;
-		let result = null;
-		this.origins.every(origin => {
-			if (origin.name === maxOriginName) {
-				result = origin;
-				return false;
-			} else
-				return true;
-		});
+		let result = this.origins.find(origin => (origin.name === maxOriginName));
 
-		return result;
+		return (result === undefined) ? null : result;
 	}
-	get originNames(): string[]{
+	get originNames(): string[] {
 		if (this.Count > 0) {
-			if (this._originNames == null && this.Count > 0) {
+			if (this._originNames === null && this.Count > 0) {
 				this._originNames = [];
 			} else {
 				if (!this._originNames) this._originNames = [];
@@ -244,16 +232,13 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
 		return this._originNames as string[];
 	}
-	public SetInitialOriginName(initialOriginName: string){
+	public SetInitialOriginName(initialOriginName: string) {
 		this._originNames = [initialOriginName];
 	}
-	public SetInitialOriginNames(initialOriginNames: string[]){
-		if (initialOriginNames === null)
-			this._originNames = null;
-		else
-			this._originNames = initialOriginNames.slice();// store a copy
+	public SetInitialOriginNames(initialOriginNames: string[] | null) {
+		this._originNames = initialOriginNames?.slice(); // store a copy
 	}
-	get maxItem(){
+	get maxItem() {
 		let max: KeyValuePair<InkListItem, number> = {
 			Key: InkListItem.Null,
 			Value: 0,
@@ -266,7 +251,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
 		return max;
 	}
-	get minItem(){
+	get minItem() {
 		let min: KeyValuePair<InkListItem, number> = {
 			Key: InkListItem.Null,
 			Value: 0,
@@ -295,7 +280,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 	get all(){
 		let list = new InkList();
 		if (this.origins != null) {
-			for(let origin of this.origins) {
+			for (let origin of this.origins) {
 				for (let [key, value] of origin.items) {
 					let item = InkListItem.fromSerializedKey(key);
 					list.set(item.serialized(), value);
@@ -304,23 +289,23 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		}
 		return list;
 	}
-	public Union(otherList: InkList){
+	public Union(otherList: InkList) {
 		let union = new InkList(this);
 		for (let [key, value] of otherList) {
 			union.set(key, value);
 		}
 		return union;
 	}
-	public Intersect(otherList: InkList){
+	public Intersect(otherList: InkList) {
 		let intersection = new InkList();
-		for(let [key, value] of this) {
+		for (let [key, value] of this) {
 			if (otherList.has(key))
 				intersection.set(key, value);
 		}
 
 		return intersection;
 	}
-	public Without(listToRemove: InkList){
+	public Without(listToRemove: InkList) {
 		let result = new InkList(this);
 		for (let [key, value] of listToRemove) {
 			result.delete(key);
@@ -328,50 +313,48 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
 		return result;
 	}
-	public Contains(otherList: InkList){
+	public Contains(otherList: InkList) {
 		for (let [key, value] of otherList) {
 			if (!this.has(key)) return false;
 		}
 
 		return true;
 	}
-	public GreaterThan(otherList: InkList){
+	public GreaterThan(otherList: InkList) {
 		if (this.Count === 0) return false;
 		if (otherList.Count === 0) return true;
 
 		return this.minItem.Value > otherList.maxItem.Value;
 	}
-	public GreaterThanOrEquals(otherList: InkList){
+	public GreaterThanOrEquals(otherList: InkList) {
 		if (this.Count === 0) return false;
 		if (otherList.Count === 0) return true;
 
 		return this.minItem.Value >= otherList.minItem.Value
 			&& this.maxItem.Value >= otherList.maxItem.Value;
 	}
-	public LessThan(otherList: InkList){
+	public LessThan(otherList: InkList) {
 		if (otherList.Count === 0) return false;
 		if (this.Count === 0) return true;
 
 		return this.maxItem.Value < otherList.minItem.Value;
 	}
-	public LessThanOrEquals(otherList: InkList){
+	public LessThanOrEquals(otherList: InkList) {
 		if (otherList.Count === 0) return false;
 		if (this.Count === 0) return true;
 
 		return this.maxItem.Value <= otherList.maxItem.Value
 			&& this.minItem.Value <= otherList.minItem.Value;
 	}
-	public MaxAsList(){
-		if (this.Count > 0)
-			return new InkList(this.maxItem);
-		else
-			return new InkList();
+	public MaxAsList() {
+		return (this.Count > 0) ?
+			new InkList(this.maxItem) :
+			new InkList();
 	}
 	public MinAsList() {
-		if (this.Count > 0)
-			return new InkList(this.minItem);
-		else
-			return new InkList();
+		return (this.Count > 0) ?
+			new InkList(this.minItem) :
+			new InkList();
 	}
 	public ListWithSubRange(minBound: any, maxBound: any) {
 		if (this.Count === 0) return new InkList();
@@ -384,21 +367,21 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		if (Number.isInteger(minBound)) {
 			minValue = minBound;
 		} else {
-			if (minBound instanceof InkList && minBound.Count > 0 )
+			if (minBound instanceof InkList && minBound.Count > 0)
 				minValue = minBound.minItem.Value;
 		}
 
 		if (Number.isInteger(maxBound)) {
 			maxValue = maxBound;
 		} else {
-			if (minBound instanceof InkList && (minBound).Count > 0)
+			if (minBound instanceof InkList && minBound.Count > 0)
 				maxValue = maxBound.maxItem.Value;
 		}
 
 		let subList = new InkList();
 		subList.SetInitialOriginNames(this.originNames);
 		for (let item of ordered) {
-			if (item.Value >= minValue && item.Value <= maxValue ) {
+			if (item.Value >= minValue && item.Value <= maxValue) {
 				subList.Add(item.Key, item.Value);
 			}
 		}
@@ -442,7 +425,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
 		return ordered;
 	}
-	public toString(){
+	public toString() {
 		let ordered = this.orderedItems;
 
 		let sb = new StringBuilder();
@@ -495,7 +478,7 @@ export type SerializedInkListItem = string;
  * properties. It's mainly used when deserializing a `InkListItem` from its
  * key (`SerializedInkListItem`)
  */
-interface IInkListItem{
+interface IInkListItem {
 	readonly originName: string | null;
 	readonly itemName: string | null;
 }
